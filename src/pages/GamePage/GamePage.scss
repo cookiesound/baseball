@@ -1,0 +1,15 @@
+.game-page {
+  min-height: 100vh;
+
+  &__history-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__panel-title {
+    margin: 0 0 4px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    letter-spacing: 0.02em;
+  }
+}

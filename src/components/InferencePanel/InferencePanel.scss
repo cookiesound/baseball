@@ -1,0 +1,93 @@
+.inference-panel {
+  background: rgba(20, 22, 30, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  margin-top: 16px;
+
+  .ant-card-body {
+    padding: 18px;
+  }
+
+  &__block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__title {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-size: 15px !important;
+  }
+
+  &__title-icon {
+    font-size: 16px;
+
+    &--ok {
+      color: #8ce99a;
+    }
+
+    &--no {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+
+  &__desc {
+    font-size: 12px;
+    line-height: 1.45;
+    display: block;
+  }
+
+  &__divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 16px 0;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__tag {
+    margin: 0 !important;
+    min-width: 36px;
+    text-align: center;
+    font-size: 15px !important;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+
+    &--confirmed {
+      color: #b2f2bb !important;
+      background: rgba(140, 233, 154, 0.14) !important;
+      border: 1px solid rgba(140, 233, 154, 0.28) !important;
+    }
+
+    &--excluded {
+      color: rgba(255, 255, 255, 0.42) !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      text-decoration: line-through;
+      text-decoration-color: rgba(255, 120, 120, 0.65);
+    }
+  }
+
+  &__none {
+    padding: 6px 0 2px;
+  }
+
+  &__empty {
+    margin: 4px 0 0;
+
+    .ant-empty-description {
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 12px;
+    }
+  }
+}

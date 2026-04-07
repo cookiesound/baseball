@@ -1,0 +1,110 @@
+.game-board {
+  min-height: 100vh;
+  background: transparent;
+
+  &__header {
+    background: transparent !important;
+    height: auto !important;
+    line-height: normal !important;
+    padding: 18px 20px 8px !important;
+  }
+
+  &__header-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  &__top-row {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 3fr) 1fr;
+    align-items: start;
+    gap: 10px;
+  }
+
+  &__top-left,
+  &__top-right {
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  &__titles {
+    text-align: center;
+    min-width: 0;
+  }
+
+  @media (max-width: 600px) {
+    &__top-row {
+      grid-template-columns: 1fr;
+    }
+
+    &__top-right {
+      display: none;
+    }
+
+    &__top-left {
+      justify-self: start;
+    }
+
+    &__titles {
+      order: -1;
+    }
+  }
+
+  &__title {
+    margin: 0 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 800 !important;
+    color: rgba(255, 255, 255, 0.96) !important;
+    text-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  &__badge-row {
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__content {
+    padding: 10px 20px 24px;
+    background: transparent;
+  }
+
+  &__grid {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.25fr 0.85fr;
+    gap: 20px;
+    align-items: start;
+
+    @media (max-width: 960px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__left,
+  &__right {
+    min-width: 0;
+  }
+
+  &__left {
+    background: rgba(20, 22, 30, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__footer {
+    background: transparent !important;
+    padding: 6px 16px 28px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}

@@ -1,0 +1,23 @@
+:root {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(124, 108, 245, 0.22), transparent 55%),
+    radial-gradient(900px 500px at 90% 20%, rgba(116, 192, 252, 0.14), transparent 50%),
+    #0c0e14;
+}

@@ -1,0 +1,89 @@
+.hint-panel {
+  background: rgba(20, 22, 30, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  margin-top: 16px;
+
+  &--inactive {
+    opacity: 0.55;
+  }
+
+  .ant-card-body {
+    padding: 18px;
+  }
+
+  &__head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  &__icon {
+    font-size: 22px;
+    color: #ffe066;
+    margin-top: 2px;
+  }
+
+  &__title {
+    margin: 0 !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  &__sub {
+    font-size: 12px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 224, 102, 0.08);
+    border: 1px solid rgba(255, 224, 102, 0.18);
+
+    &--clickable {
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+      &:hover {
+        background: rgba(255, 224, 102, 0.16);
+        border-color: rgba(255, 224, 102, 0.38);
+      }
+
+      &:active {
+        transform: scale(0.99);
+      }
+
+      &:focus-visible {
+        outline: 2px solid rgba(124, 108, 245, 0.85);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  &__digits {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.16em;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  &__empty {
+    margin: 8px 0 0;
+
+    .ant-empty-description {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+}
