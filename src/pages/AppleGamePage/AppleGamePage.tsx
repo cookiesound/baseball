@@ -7,6 +7,11 @@ import { ScoreDisplay } from '../../games/appleGame/components/ScoreDisplay/Scor
 import { useAppleGame } from '../../games/appleGame/hooks/useAppleGame';
 import { useAppleGameAudio } from '../../games/appleGame/hooks/useAppleGameAudio';
 import {
+  captureElementToImageBlobs,
+  copyPngToClipboard,
+  downloadBlob,
+} from '../../games/appleGame/utils/captureSessionImage';
+import {
   clearAppleBestScore,
   loadAppleScores,
   markAppleBabyModeEverUsed,
@@ -25,10 +30,11 @@ const BABY_MODE_HELP = (
 );
 
 export function AppleGamePage() {
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const [view, setView] = useState<'menu' | 'play'>('menu');
   const [scores, setScores] = useState<AppleScoresState>(() => loadAppleScores());
   const [babyModeQueued, setBabyModeQueued] = useState(false);
+  const [captureLoading, setCaptureLoading] = useState(false);
 
   const {
     muted,
@@ -125,6 +131,36 @@ export function AppleGamePage() {
     restartAfterModal();
     startBgm();
   };
+
+  const handleCaptureGameUi = useCallback(async () => {
+    const el = sessionRef.current;
+    if (!el) {
+      message.warning('캡처할 영역을 찾을 수 없습니다');
+      return;
+    }
+    setCaptureLoading(true);
+    try {
+      const { png, jpeg } = await captureElementToImageBlobs(el);
+      if (!png) {
+        message.error('이미지를 만들 수 없습니다');
+        return;
+      }
+      const copied = await copyPngToClipboard(png);
+      if (copied) {
+        message.success('클립보드에 이미지를 복사했습니다');
+      } else if (jpeg) {
+        downloadBlob(jpeg, `apple-game-${Date.now()}.jpg`);
+        message.info('클립보드 복사에 실패해 JPG 파일로 저장했습니다');
+      } else {
+        downloadBlob(png, `apple-game-${Date.now()}.png`);
+        message.info('클립보드 복사에 실패해 PNG 파일로 저장했습니다');
+      }
+    } catch {
+      message.error('캡처 중 오류가 발생했습니다');
+    } finally {
+      setCaptureLoading(false);
+    }
+  }, [message]);
 
   const onExitToMenu = () => {
     exitToMenu();
@@ -245,6 +281,8 @@ export function AppleGamePage() {
         open={gameOver}
         score={score}
         onRestart={handleRestartFromModal}
+        onCaptureUi={handleCaptureGameUi}
+        captureLoading={captureLoading}
         getContainer={() => sessionRef.current ?? document.body}
       />
     </div>

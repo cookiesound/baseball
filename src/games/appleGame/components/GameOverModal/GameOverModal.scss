@@ -10,6 +10,7 @@
 .game-over-modal {
   .ant-modal-content {
     border-radius: 14px;
+    opacity: 0.9;
   }
 
   &__body {
@@ -45,8 +46,26 @@
     }
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   &__btn {
+    flex: 1;
+    min-width: 0;
     font-weight: 700;
     height: 48px !important;
+  }
+
+  &__capture {
+    flex-shrink: 0;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
   }
 }
