@@ -7,6 +7,10 @@ import { ScoreDisplay } from '../../games/appleGame/components/ScoreDisplay/Scor
 import { useAppleGame } from '../../games/appleGame/hooks/useAppleGame';
 import { useAppleGameAudio } from '../../games/appleGame/hooks/useAppleGameAudio';
 import {
+  APPLE_GAME_DURATION_BABY,
+  APPLE_GAME_DURATION_NORMAL,
+} from '../../games/appleGame/types/appleGameTypes';
+import {
   captureElementToImageBlobs,
   copyPngToClipboard,
   downloadBlob,
@@ -22,10 +26,15 @@ import './AppleGamePage.scss';
 
 const { Paragraph, Text, Title } = Typography;
 
+const BABY_EXTRA_SEC = APPLE_GAME_DURATION_BABY - APPLE_GAME_DURATION_NORMAL;
+
 const BABY_MODE_HELP = (
   <div className="apple-game-page__baby-tooltip">
-    <p>응애모드로 시작하면 드래그한 영역 안 사과 숫자의 합이 표시됩니다.</p>
-    <p>제한 시간이 20초 늘어나 총 200초 동안 플레이합니다.</p>
+    <p>작은 숫자(1~3)가 조금 더 자주, 큰 숫자(8~9)는 더 드물게 나옵니다.</p>
+    <p>
+      제한 시간이 {BABY_EXTRA_SEC}초 늘어나 총 {APPLE_GAME_DURATION_BABY}초 동안 플레이합니다. (일반{' '}
+      {APPLE_GAME_DURATION_NORMAL}초)
+    </p>
   </div>
 );
 
@@ -271,7 +280,11 @@ export function AppleGamePage() {
           <div className="apple-game-page__hint">
             <Text type="secondary">
               <AppstoreOutlined /> 사각형으로 드래그 · 포함된 숫자 합이 10이면 사과가 사라지고 점수가 오릅니다.
-              {babyModeSession ? <> 응애모드: 드래그 중 합계가 표시되고 200초 플레이입니다.</> : null}
+              {babyModeSession ? (
+                <>
+                  응애모드: 1~3이 더 자주·8~9는 덜 나오며, {APPLE_GAME_DURATION_BABY}초 플레이입니다.
+                </>
+              ) : null}
             </Text>
           </div>
         </div>

@@ -3,7 +3,6 @@ import { cn } from '../../../../utils/cn';
 import type { AppleCell as AppleCellType } from '../../types/appleGameTypes';
 import { useDragSelect } from '../../hooks/useDragSelect';
 import { collectCellIdsInLocalPixelRect } from '../../utils/collectCellsInPixelRect';
-import { calculateAppleSum } from '../../utils/calculateAppleSum';
 import { AppleCell } from '../AppleCell/AppleCell';
 import { DragSelection } from '../DragSelection/DragSelection';
 import { TimerBar } from '../TimerBar/TimerBar';
@@ -25,7 +24,6 @@ export function AppleBoard({
   sessionDuration,
   poppingIds,
   disabled,
-  babyMode = false,
   onSelectionComplete,
 }: AppleBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
@@ -78,6 +76,7 @@ export function AppleBoard({
     setHighlightIds(ids);
   }, [isDragging, overlayRect]);
 
+  /* 응애모드 드래그 합계 툴팁 — 당분간 미사용 (babyMode·calculateAppleSum 복구 필요)
   const dragSum = useMemo(() => {
     if (!babyMode || highlightIds.size === 0) return null;
     const picked: AppleCellType[] = [];
@@ -88,6 +87,8 @@ export function AppleBoard({
     }
     return calculateAppleSum(picked);
   }, [babyMode, grid, highlightIds]);
+  const showSumHint = Boolean(_babyMode && isDragging && overlayRect && dragSum !== null);
+  */
 
   const cells = useMemo(
     () =>
@@ -104,8 +105,6 @@ export function AppleBoard({
     [grid, highlightIds, poppingIds],
   );
 
-  const showSumHint = Boolean(babyMode && isDragging && overlayRect && dragSum !== null);
-
   return (
     <div className={cn('apple-game-frame', stacked && 'apple-game-frame--stack')}>
       <div
@@ -115,6 +114,7 @@ export function AppleBoard({
       >
         {cells}
         <DragSelection rect={overlayRect} visible={isDragging} />
+        {/* 응애모드 합계 툴팁 — 당분간 미사용
         {showSumHint && overlayRect ? (
           <div
             className="apple-game-board__drag-sum"
@@ -126,6 +126,7 @@ export function AppleBoard({
             합계 <span className="apple-game-board__drag-sum-num">{dragSum}</span>
           </div>
         ) : null}
+        */}
       </div>
       <TimerBar time={time} duration={sessionDuration} />
     </div>

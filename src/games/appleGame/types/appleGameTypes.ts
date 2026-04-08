@@ -21,9 +21,9 @@ export interface AppleBestScoreData {
 export const APPLE_GRID_COLS = 17;
 export const APPLE_GRID_ROWS = 10;
 /** 일반 모드 제한 시간(초) */
-export const APPLE_GAME_DURATION_NORMAL = 180;
-/** 응애모드 제한 시간(초) — 일반 + 20 */
-export const APPLE_GAME_DURATION_BABY = 200;
+export const APPLE_GAME_DURATION_NORMAL = 120;
+/** 응애모드 제한 시간(초) */
+export const APPLE_GAME_DURATION_BABY = 150;
 
 /** @deprecated APPLE_GAME_DURATION_NORMAL 사용 */
 export const APPLE_GAME_DURATION = APPLE_GAME_DURATION_NORMAL;

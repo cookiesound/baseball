@@ -3,6 +3,8 @@ import type { AppleCell } from '../types/appleGameTypes';
 import {
   APPLE_GAME_DURATION_BABY,
   APPLE_GAME_DURATION_NORMAL,
+  APPLE_GRID_COLS,
+  APPLE_GRID_ROWS,
 } from '../types/appleGameTypes';
 import { calculateAppleSum } from '../utils/calculateAppleSum';
 import { generateAppleGrid } from '../utils/generateAppleGrid';
@@ -63,7 +65,11 @@ export function useAppleGame(
       setSessionDuration(duration);
 
       poppingBusyRef.current = false;
-      setGrid(generateAppleGrid());
+      setGrid(
+        generateAppleGrid(APPLE_GRID_COLS, APPLE_GRID_ROWS, {
+          babyFriendlyDistribution: sessionBabyRef.current,
+        }),
+      );
       setScore(0);
       setPoppingIds(new Set());
       setGameOver(false);
