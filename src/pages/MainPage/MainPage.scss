@@ -1,74 +1,84 @@
-.main-page {
-  min-height: 100vh;
-  padding: 28px 18px 48px;
+.game-hub {
+  min-height: 100%;
+  padding: 36px 18px 56px;
   box-sizing: border-box;
-
-  &__inner {
-    max-width: 1040px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-  }
-
-  &__hero {
-    text-align: center;
-  }
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: center;
 
   &__title {
-    margin-bottom: 8px !important;
-    letter-spacing: 0.02em;
-    color: rgba(255, 255, 255, 0.96) !important;
+    margin: 0 0 10px !important;
+    letter-spacing: 0.14em;
     font-weight: 800 !important;
+    color: rgba(255, 255, 255, 0.95) !important;
   }
 
   &__lead {
-    margin: 0 auto !important;
-    max-width: 760px;
-    color: rgba(255, 255, 255, 0.72);
+    margin: 0 0 28px !important;
+    color: rgba(255, 255, 255, 0.62);
     font-size: 15px;
-    line-height: 1.7;
   }
 
-  &__score {
-    border-radius: 16px;
-    padding: 18px 18px 14px;
-    background: rgba(20, 22, 30, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
-    text-align: center;
-  }
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 
-  &__stat {
-    .ant-statistic-title {
-      margin-bottom: 6px;
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
     }
   }
 
-  &__stat-title {
-    color: rgba(255, 255, 255, 0.62);
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  &__card {
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(20, 22, 30, 0.78) !important;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: rgba(124, 108, 245, 0.45) !important;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .ant-card-body {
+      padding: 24px 20px;
+    }
   }
 
-  &__sub {
-    margin-top: 10px;
-  }
-
-  &__actions {
+  &__card-inner {
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
-  &__section-title {
-    text-align: center;
-    margin: 6px 0 6px !important;
-    color: rgba(255, 255, 255, 0.88) !important;
+  &__icon {
+    font-size: 32px;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+
+    &--nb {
+      color: #e599f7;
+    }
+
+    &--apple {
+      color: #ff8787;
+    }
   }
 
-  &__selector {
-    padding-top: 6px;
+  &__card-title {
+    margin: 0 !important;
+    color: rgba(255, 255, 255, 0.94) !important;
+  }
+
+  &__card-desc {
+    margin: 0 !important;
+    font-size: 13px;
+    line-height: 1.5;
   }
 }

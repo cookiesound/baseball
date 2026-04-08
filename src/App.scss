@@ -21,3 +21,87 @@ body {
     radial-gradient(900px 500px at 90% 20%, rgba(116, 192, 252, 0.14), transparent 50%),
     #0c0e14;
 }
+
+.app-shell {
+  min-height: 100vh;
+  background: transparent !important;
+
+  &__sider {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(14, 16, 23, 0.96) !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 10px 0 16px;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  &__brand-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__brand--collapsed {
+    justify-content: center;
+    padding: 0;
+  }
+
+  &__brand-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  &__menu {
+    margin-top: 8px;
+    background: transparent !important;
+    border-inline-end: none !important;
+    flex: 1;
+  }
+
+  &__toggle-btn {
+    width: 40px;
+    height: 40px;
+    color: rgba(255, 255, 255, 0.88) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__main {
+    min-width: 0;
+    background: transparent !important;
+  }
+
+  &__mobile-back {
+    display: none;
+    padding: 10px 12px 0;
+  }
+
+  &__mobile-btn {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  &__content {
+    min-height: 100vh;
+    background: transparent !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    &__mobile-back {
+      display: block;
+    }
+  }
+}

@@ -1,0 +1,52 @@
+.apple-game-frame {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  max-width: min(92vw, 900px);
+  margin: 0 auto;
+  border: 4px solid #2e7d32;
+  border-radius: 14px;
+  background: rgba(200, 230, 201, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.apple-game-board {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(17, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 5px;
+  padding: 12px;
+  min-height: min(52vh, 420px);
+  background-color: #e8f5e9;
+  background-image:
+    linear-gradient(45deg, rgba(165, 214, 167, 0.55) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(165, 214, 167, 0.55) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(165, 214, 167, 0.55) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(165, 214, 167, 0.55) 75%);
+  background-size: 24px 24px;
+  background-position:
+    0 0,
+    0 12px,
+    12px -12px,
+    -12px 0;
+  cursor: crosshair;
+  touch-action: none;
+
+  &--dragging {
+    cursor: crosshair;
+  }
+}
+
+.apple-game-frame--stack {
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.apple-game-frame--stack .apple-game-board {
+  min-height: 280px;
+}

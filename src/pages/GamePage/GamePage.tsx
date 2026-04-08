@@ -117,8 +117,8 @@ function GamePageInner({ difficulty }: { difficulty: Difficulty }) {
     <div className="game-page">
       <GameBoard
         headerExtra={
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/')}>
-            메인으로
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/number-baseball')}>
+            난이도 선택
           </Button>
         }
         difficultyBadge={difficultyBadge}
@@ -194,7 +194,7 @@ export function GamePage() {
   const difficulty = parseDifficulty(raw);
 
   if (!difficulty) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/number-baseball" replace />;
   }
 
   return <GamePageInner difficulty={difficulty} />;

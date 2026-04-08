@@ -1,0 +1,28 @@
+.game-over-modal {
+  .ant-modal-content {
+    border-radius: 14px;
+  }
+
+  &__body {
+    text-align: center;
+    padding: 8px 4px 4px;
+  }
+
+  &__title {
+    margin-top: 0 !important;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  &__score {
+    display: block;
+    margin: 12px 0 22px !important;
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  &__btn {
+    font-weight: 700;
+    height: 48px !important;
+  }
+}
