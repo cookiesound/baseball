@@ -1,3 +1,12 @@
+/* 부모(.apple-game-page__session)가 position:relative 일 때 뷰포트 대신 그 영역에 맞춤 */
+.game-over-modal-root {
+  .ant-modal-mask,
+  .ant-modal-wrap {
+    position: absolute;
+    inset: 0;
+  }
+}
+
 .game-over-modal {
   .ant-modal-content {
     border-radius: 14px;
@@ -17,8 +26,23 @@
   &__score {
     display: block;
     margin: 12px 0 22px !important;
-    font-size: 17px;
-    color: rgba(255, 255, 255, 0.75);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.88);
+
+    strong {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: clamp(32px, 9vw, 40px);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      color: #ffe066;
+      text-shadow:
+        0 0 12px rgba(255, 224, 102, 0.45),
+        0 2px 4px rgba(0, 0, 0, 0.35);
+    }
   }
 
   &__btn {

@@ -57,7 +57,7 @@
     top: 50%;
     transform: translate(-50%, -35%);
     font-weight: 800;
-    font-size: clamp(15px, 3.2vw, 22px);
+    font-size: clamp(calc(15px - 2pt), 3.2vw, calc(22px - 2pt));
     line-height: 1;
     color: #fff;
     pointer-events: none;

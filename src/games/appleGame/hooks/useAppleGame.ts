@@ -9,7 +9,15 @@ function markCellsRemoved(grid: AppleCell[][], idSet: Set<string>): AppleCell[][
   return grid.map((row) => row.map((c) => (idSet.has(c.id) ? { ...c, removed: true } : c)));
 }
 
-export function useAppleGame(onSessionEnd: (finalScore: number) => void) {
+export interface UseAppleGameOptions {
+  onSuccessfulPop?: () => void;
+  onFailedSelection?: () => void;
+}
+
+export function useAppleGame(
+  onSessionEnd: (finalScore: number) => void,
+  { onSuccessfulPop, onFailedSelection }: UseAppleGameOptions = {},
+) {
   const [playing, setPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [grid, setGrid] = useState<AppleCell[][] | null>(null);
@@ -67,7 +75,11 @@ export function useAppleGame(onSessionEnd: (finalScore: number) => void) {
     const g = gridRef.current;
     if (!g || !playing || poppingBusyRef.current) return;
     if (picked.length === 0) return;
-    if (calculateAppleSum(picked) !== 10) return;
+    if (calculateAppleSum(picked) !== 10) {
+      onFailedSelection?.();
+      return;
+    }
+    onSuccessfulPop?.();
     const ids = picked.map((c) => c.id);
     const idSet = new Set(ids);
     poppingBusyRef.current = true;
@@ -78,7 +90,7 @@ export function useAppleGame(onSessionEnd: (finalScore: number) => void) {
       setPoppingIds(new Set());
       poppingBusyRef.current = false;
     }, 380);
-  }, [playing]);
+  }, [playing, onSuccessfulPop, onFailedSelection]);
 
   return {
     grid,
