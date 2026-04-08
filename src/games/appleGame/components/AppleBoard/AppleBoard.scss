@@ -19,7 +19,6 @@
   display: grid;
   grid-template-columns: repeat(17, 1fr);
   grid-template-rows: repeat(10, 1fr);
-  gap: 3px;
   padding: 12px;
   min-height: min(52vh, 420px);
   background-color: #e8f5e9;
@@ -39,6 +38,31 @@
 
   &--dragging {
     cursor: crosshair;
+  }
+
+  &__drag-sum {
+    position: absolute;
+    z-index: 4;
+    transform: translateX(-50%);
+    pointer-events: none;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(46, 125, 50, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+  }
+
+  &__drag-sum-num {
+    margin-left: 4px;
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff59d;
+    font-variant-numeric: tabular-nums;
   }
 }
 

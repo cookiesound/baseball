@@ -3,6 +3,7 @@ import { cn } from '../../../../utils/cn';
 import type { AppleCell as AppleCellType } from '../../types/appleGameTypes';
 import { useDragSelect } from '../../hooks/useDragSelect';
 import { collectCellIdsInLocalPixelRect } from '../../utils/collectCellsInPixelRect';
+import { calculateAppleSum } from '../../utils/calculateAppleSum';
 import { AppleCell } from '../AppleCell/AppleCell';
 import { DragSelection } from '../DragSelection/DragSelection';
 import { TimerBar } from '../TimerBar/TimerBar';
@@ -11,12 +12,22 @@ import './AppleBoard.scss';
 interface AppleBoardProps {
   grid: AppleCellType[][];
   time: number;
+  sessionDuration: number;
   poppingIds: Set<string>;
   disabled: boolean;
+  babyMode?: boolean;
   onSelectionComplete: (picked: AppleCellType[]) => void;
 }
 
-export function AppleBoard({ grid, time, poppingIds, disabled, onSelectionComplete }: AppleBoardProps) {
+export function AppleBoard({
+  grid,
+  time,
+  sessionDuration,
+  poppingIds,
+  disabled,
+  babyMode = false,
+  onSelectionComplete,
+}: AppleBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const [stacked, setStacked] = useState(false);
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
@@ -67,6 +78,17 @@ export function AppleBoard({ grid, time, poppingIds, disabled, onSelectionComple
     setHighlightIds(ids);
   }, [isDragging, overlayRect]);
 
+  const dragSum = useMemo(() => {
+    if (!babyMode || highlightIds.size === 0) return null;
+    const picked: AppleCellType[] = [];
+    for (const row of grid) {
+      for (const c of row) {
+        if (highlightIds.has(c.id) && !c.removed) picked.push(c);
+      }
+    }
+    return calculateAppleSum(picked);
+  }, [babyMode, grid, highlightIds]);
+
   const cells = useMemo(
     () =>
       grid.flatMap((row) =>
@@ -82,6 +104,8 @@ export function AppleBoard({ grid, time, poppingIds, disabled, onSelectionComple
     [grid, highlightIds, poppingIds],
   );
 
+  const showSumHint = Boolean(babyMode && isDragging && overlayRect && dragSum !== null);
+
   return (
     <div className={cn('apple-game-frame', stacked && 'apple-game-frame--stack')}>
       <div
@@ -91,8 +115,19 @@ export function AppleBoard({ grid, time, poppingIds, disabled, onSelectionComple
       >
         {cells}
         <DragSelection rect={overlayRect} visible={isDragging} />
+        {showSumHint && overlayRect ? (
+          <div
+            className="apple-game-board__drag-sum"
+            style={{
+              left: overlayRect.left + overlayRect.width / 2,
+              top: overlayRect.top + overlayRect.height + 6,
+            }}
+          >
+            합계 <span className="apple-game-board__drag-sum-num">{dragSum}</span>
+          </div>
+        ) : null}
       </div>
-      <TimerBar time={time} />
+      <TimerBar time={time} duration={sessionDuration} />
     </div>
   );
 }

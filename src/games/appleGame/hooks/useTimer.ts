@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useTimer(initialSeconds: number, isRunning: boolean, onTimeUp: () => void) {
-  const [time, setTime] = useState(initialSeconds);
+export function useTimer(isRunning: boolean, onTimeUp: () => void) {
+  const [time, setTime] = useState(0);
   const onTimeUpRef = useRef(onTimeUp);
   onTimeUpRef.current = onTimeUp;
 
-  const reset = useCallback((value: number = initialSeconds) => {
+  const reset = useCallback((value: number) => {
     setTime(value);
-  }, [initialSeconds]);
+  }, []);
 
   useEffect(() => {
     if (!isRunning) return;

@@ -25,18 +25,73 @@
     font-size: 15px;
   }
 
+  &__best-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
   &__best-line {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.06em;
     color: #ffe066;
+
+    &--baby {
+      font-size: 16px;
+      color: #ffb74d;
+    }
+  }
+
+  &__play-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 16px;
+    margin-top: 8px;
   }
 
   &__play-btn {
-    min-width: 200px;
+    min-width: 160px;
     height: 48px !important;
     font-weight: 700;
-    margin-top: 8px;
+  }
+
+  &__baby-check {
+    color: rgba(255, 255, 255, 0.92) !important;
+
+    .ant-checkbox + span {
+      color: inherit;
+    }
+  }
+
+  &__baby-help-icon {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.75);
+    cursor: help;
+    line-height: 1;
+
+    &:hover {
+      color: #ffe066;
+    }
+  }
+
+  &__baby-tooltip {
+    margin: 0;
+    text-align: left;
+    max-width: 280px;
+    font-size: 13px;
+    line-height: 1.5;
+
+    p {
+      margin: 0 0 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 
   &__reset-best {
@@ -56,9 +111,15 @@
   &__play-head {
     max-width: min(92vw, 900px);
     margin: 0 auto 12px;
-    text-align: right;
     padding-right: 4px;
     width: 100%;
+  }
+
+  &__best-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
   }
 
   &__hud-row {
@@ -113,6 +174,11 @@
     font-size: 15px;
     letter-spacing: 0.05em;
     color: rgba(255, 224, 102, 0.95) !important;
+
+    &--baby {
+      font-size: 14px;
+      color: rgba(255, 183, 77, 0.95) !important;
+    }
   }
 
   &__hint {

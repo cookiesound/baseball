@@ -1,12 +1,14 @@
-import { APPLE_GAME_DURATION } from '../../types/appleGameTypes';
 import './TimerBar.scss';
 
 interface TimerBarProps {
   time: number;
+  /** 시작 시각 기준 총 제한 시간(초) — 진행률 계산용 */
+  duration: number;
 }
 
-export function TimerBar({ time }: TimerBarProps) {
-  const ratio = Math.max(0, Math.min(1, time / APPLE_GAME_DURATION));
+export function TimerBar({ time, duration }: TimerBarProps) {
+  const max = duration > 0 ? duration : 1;
+  const ratio = Math.max(0, Math.min(1, time / max));
   const urgent = time <= 10;
 
   return (
