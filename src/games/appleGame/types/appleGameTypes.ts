@@ -20,6 +20,8 @@ export interface AppleBestScoreData {
 
 export const APPLE_GRID_COLS = 17;
 export const APPLE_GRID_ROWS = 10;
+/** 전부 제거 시 최대 점수(격자 칸 수) */
+export const APPLE_MAX_SCORE = APPLE_GRID_COLS * APPLE_GRID_ROWS;
 /** 일반 모드 제한 시간(초) */
 export const APPLE_GAME_DURATION_NORMAL = 120;
 /** 응애모드 제한 시간(초) */

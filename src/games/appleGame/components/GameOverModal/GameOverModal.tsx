@@ -1,5 +1,10 @@
 import { CopyOutlined } from "@ant-design/icons";
 import { Button, Modal, Tooltip, Typography } from "antd";
+import { cn } from "../../../../utils/cn";
+import {
+  AppleTrophyBadge,
+  type AppleTrophyVariant,
+} from "../AppleTrophyBadge/AppleTrophyBadge";
 import "./GameOverModal.scss";
 
 const { Title, Text } = Typography;
@@ -8,10 +13,13 @@ interface GameOverModalProps {
   open: boolean;
   score: number;
   onRestart: () => void;
-  /** 게임 세션 UI(모달 포함) 캡처: 복사·다운로드 처리는 호출부 */
+  /** 최대점(170) 달성 시 초록 점수 + 트로피 */
+  showPerfectTrophy?: boolean;
+  trophyVariant?: AppleTrophyVariant;
+  /** 해당 모드 누적 완판 횟수(배지는 2회 이상) */
+  trophyAchieveCount?: number;
   onCaptureUi?: () => void;
   captureLoading?: boolean;
-  /** 모달을 붙일 DOM (사과 게임 영역 등). 없으면 document.body */
   getContainer?: HTMLElement | (() => HTMLElement) | false;
 }
 
@@ -19,10 +27,15 @@ export function GameOverModal({
   open,
   score,
   onRestart,
+  showPerfectTrophy = false,
+  trophyVariant = "normal",
+  trophyAchieveCount = 0,
   onCaptureUi,
   captureLoading = false,
   getContainer,
 }: GameOverModalProps) {
+  const showTrophy = showPerfectTrophy && trophyAchieveCount >= 1;
+
   return (
     <Modal
       open={open}
@@ -39,8 +52,22 @@ export function GameOverModal({
         <Title level={3} className="game-over-modal__title">
           GAME OVER
         </Title>
-        <Text className="game-over-modal__score">
-          <strong>{score}</strong>
+        <Text
+          className={cn(
+            "game-over-modal__score",
+            showPerfectTrophy && "game-over-modal__score--max",
+          )}
+        >
+          <span className="game-over-modal__score-row">
+            <strong>{score}</strong>
+            {showTrophy ? (
+              <AppleTrophyBadge
+                variant={trophyVariant}
+                count={trophyAchieveCount}
+                context="modal"
+              />
+            ) : null}
+          </span>
         </Text>
         <div className="game-over-modal__actions">
           <Button

@@ -1,0 +1,65 @@
+.apple-trophy-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+
+  &__icon {
+    display: block;
+  }
+
+  &__count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(180deg, #e53935, #b71c1c);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 일반: 황금 트로피 (더 화려) */
+  &--normal {
+    .apple-trophy-badge__icon {
+      font-size: 34px;
+      color: #ffd54f;
+      filter: drop-shadow(0 0 10px rgba(255, 213, 79, 0.75)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+  }
+
+  /* 응애: 왕관 · 더 소박한 톤 */
+  &--baby {
+    .apple-trophy-badge__icon {
+      font-size: 28px;
+      color: #ce93d8;
+      filter: drop-shadow(0 0 6px rgba(206, 147, 216, 0.55)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+    }
+  }
+
+  &--ctx-modal.apple-trophy-badge--normal .apple-trophy-badge__icon {
+    font-size: 42px;
+  }
+
+  &--ctx-modal.apple-trophy-badge--baby .apple-trophy-badge__icon {
+    font-size: 34px;
+  }
+
+  &--ctx-modal .apple-trophy-badge__count {
+    top: -4px;
+    right: -10px;
+    min-width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+  }
+}

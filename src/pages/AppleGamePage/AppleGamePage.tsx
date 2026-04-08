@@ -1,28 +1,30 @@
-import { AppstoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { App, Button, Checkbox, Slider, Tooltip, Typography } from 'antd';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppleBoard } from '../../games/appleGame/components/AppleBoard/AppleBoard';
-import { GameOverModal } from '../../games/appleGame/components/GameOverModal/GameOverModal';
-import { ScoreDisplay } from '../../games/appleGame/components/ScoreDisplay/ScoreDisplay';
-import { useAppleGame } from '../../games/appleGame/hooks/useAppleGame';
-import { useAppleGameAudio } from '../../games/appleGame/hooks/useAppleGameAudio';
+import { AppstoreOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { App, Button, Checkbox, Slider, Tooltip, Typography } from "antd";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AppleBoard } from "../../games/appleGame/components/AppleBoard/AppleBoard";
+import { AppleTrophyBadge } from "../../games/appleGame/components/AppleTrophyBadge/AppleTrophyBadge";
+import { GameOverModal } from "../../games/appleGame/components/GameOverModal/GameOverModal";
+import { ScoreDisplay } from "../../games/appleGame/components/ScoreDisplay/ScoreDisplay";
+import { useAppleGame } from "../../games/appleGame/hooks/useAppleGame";
+import { useAppleGameAudio } from "../../games/appleGame/hooks/useAppleGameAudio";
 import {
   APPLE_GAME_DURATION_BABY,
   APPLE_GAME_DURATION_NORMAL,
-} from '../../games/appleGame/types/appleGameTypes';
+  APPLE_MAX_SCORE,
+} from "../../games/appleGame/types/appleGameTypes";
 import {
   captureElementToImageBlobs,
   copyPngToClipboard,
   downloadBlob,
-} from '../../games/appleGame/utils/captureSessionImage';
+} from "../../games/appleGame/utils/captureSessionImage";
 import {
   clearAppleBestScore,
   loadAppleScores,
   markAppleBabyModeEverUsed,
   saveAppleScores,
   type AppleScoresState,
-} from '../../games/appleGame/utils/appleStorage';
-import './AppleGamePage.scss';
+} from "../../games/appleGame/utils/appleStorage";
+import "./AppleGamePage.scss";
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -32,16 +34,18 @@ const BABY_MODE_HELP = (
   <div className="apple-game-page__baby-tooltip">
     <p>작은 숫자(1~3)가 조금 더 자주, 큰 숫자(8~9)는 더 드물게 나옵니다.</p>
     <p>
-      제한 시간이 {BABY_EXTRA_SEC}초 늘어나 총 {APPLE_GAME_DURATION_BABY}초 동안 플레이합니다. (일반{' '}
-      {APPLE_GAME_DURATION_NORMAL}초)
+      제한 시간이 {BABY_EXTRA_SEC}초 늘어나 총 {APPLE_GAME_DURATION_BABY}초 동안
+      플레이합니다. (일반 {APPLE_GAME_DURATION_NORMAL}초)
     </p>
   </div>
 );
 
 export function AppleGamePage() {
   const { modal, message } = App.useApp();
-  const [view, setView] = useState<'menu' | 'play'>('menu');
-  const [scores, setScores] = useState<AppleScoresState>(() => loadAppleScores());
+  const [view, setView] = useState<"menu" | "play">("menu");
+  const [scores, setScores] = useState<AppleScoresState>(() =>
+    loadAppleScores(),
+  );
   const [babyModeQueued, setBabyModeQueued] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
 
@@ -66,18 +70,25 @@ export function AppleGamePage() {
     setScores(loadAppleScores());
   }, []);
 
-  const handleSessionEnd = useCallback((finalScore: number, meta: { isBabyMode: boolean }) => {
-    setScores((prev) => {
-      const next = { ...prev };
-      if (meta.isBabyMode) {
-        if (finalScore > next.babyBest) next.babyBest = finalScore;
-      } else {
-        if (finalScore > next.normalBest) next.normalBest = finalScore;
-      }
-      saveAppleScores(next);
-      return next;
-    });
-  }, []);
+  const handleSessionEnd = useCallback(
+    (finalScore: number, meta: { isBabyMode: boolean }) => {
+      setScores((prev) => {
+        const next = { ...prev };
+        if (meta.isBabyMode) {
+          if (finalScore > next.babyBest) next.babyBest = finalScore;
+          if (finalScore >= APPLE_MAX_SCORE)
+            next.baby170Count = (next.baby170Count ?? 0) + 1;
+        } else {
+          if (finalScore > next.normalBest) next.normalBest = finalScore;
+          if (finalScore >= APPLE_MAX_SCORE)
+            next.normal170Count = (next.normal170Count ?? 0) + 1;
+        }
+        saveAppleScores(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   const {
     grid,
@@ -110,7 +121,7 @@ export function AppleGamePage() {
   }, [time, playing, playCountdown]);
 
   useEffect(() => {
-    if (view !== 'play' || !playing || gameOver) {
+    if (view !== "play" || !playing || gameOver) {
       stopBgm();
     }
   }, [view, playing, gameOver, stopBgm]);
@@ -131,7 +142,7 @@ export function AppleGamePage() {
       markAppleBabyModeEverUsed();
       setScores(loadAppleScores());
     }
-    setView('play');
+    setView("play");
     startPlay({ babyMode: babyModeQueued });
     startBgm();
   };
@@ -144,28 +155,28 @@ export function AppleGamePage() {
   const handleCaptureGameUi = useCallback(async () => {
     const el = sessionRef.current;
     if (!el) {
-      message.warning('캡처할 영역을 찾을 수 없습니다');
+      message.warning("캡처할 영역을 찾을 수 없습니다");
       return;
     }
     setCaptureLoading(true);
     try {
       const { png, jpeg } = await captureElementToImageBlobs(el);
       if (!png) {
-        message.error('이미지를 만들 수 없습니다');
+        message.error("이미지를 만들 수 없습니다");
         return;
       }
       const copied = await copyPngToClipboard(png);
       if (copied) {
-        message.success('클립보드에 이미지를 복사했습니다');
+        message.success("클립보드에 이미지를 복사했습니다");
       } else if (jpeg) {
         downloadBlob(jpeg, `apple-game-${Date.now()}.jpg`);
-        message.info('클립보드 복사에 실패해 JPG 파일로 저장했습니다');
+        message.info("클립보드 복사에 실패해 JPG 파일로 저장했습니다");
       } else {
         downloadBlob(png, `apple-game-${Date.now()}.png`);
-        message.info('클립보드 복사에 실패해 PNG 파일로 저장했습니다');
+        message.info("클립보드 복사에 실패해 PNG 파일로 저장했습니다");
       }
     } catch {
-      message.error('캡처 중 오류가 발생했습니다');
+      message.error("캡처 중 오류가 발생했습니다");
     } finally {
       setCaptureLoading(false);
     }
@@ -173,16 +184,16 @@ export function AppleGamePage() {
 
   const onExitToMenu = () => {
     exitToMenu();
-    setView('menu');
+    setView("menu");
     setScores(loadAppleScores());
   };
 
   const confirmResetBest = () => {
     modal.confirm({
-      title: '정말 최고 점수를 삭제하시겠습니까?',
-      content: '일반 모드와 응애모드 BEST 점수가 모두 0으로 초기화됩니다.',
-      okText: 'YES',
-      cancelText: '취소',
+      title: "정말 최고 점수를 삭제하시겠습니까?",
+      content: "일반 모드와 응애모드 BEST 점수가 모두 0으로 초기화됩니다.",
+      okText: "YES",
+      cancelText: "취소",
       okButtonProps: { danger: true },
       onOk: () => {
         clearAppleBestScore();
@@ -193,14 +204,34 @@ export function AppleGamePage() {
 
   return (
     <div className="apple-game-page">
-      {view === 'menu' ? (
+      {view === "menu" ? (
         <div className="apple-game-page__menu">
-          <Title level={1} className="apple-game-page__menu-title">
-            🍎 사과게임
-          </Title>
-          <Paragraph className="apple-game-page__menu-sub">Apple Sum Game · 드래그로 합 10 만들기</Paragraph>
+          <div className="apple-game-page__title-row">
+            <Title level={1} className="apple-game-page__menu-title">
+              🍎 사과게임
+            </Title>
+            <div
+              className="apple-game-page__menu-trophies"
+              aria-hidden={scores.normal170Count < 1 && scores.baby170Count < 1}
+            >
+              {scores.normal170Count >= 1 ? (
+                <AppleTrophyBadge
+                  variant="normal"
+                  count={scores.normal170Count}
+                />
+              ) : null}
+              {scores.baby170Count >= 1 ? (
+                <AppleTrophyBadge variant="baby" count={scores.baby170Count} />
+              ) : null}
+            </div>
+          </div>
+          <Paragraph className="apple-game-page__menu-sub">
+            Apple Sum Game · 드래그로 합 10 만들기
+          </Paragraph>
           <div className="apple-game-page__best-block">
-            <Text className="apple-game-page__best-line">BEST (일반) : {scores.normalBest}</Text>
+            <Text className="apple-game-page__best-line">
+              BEST (일반) : {scores.normalBest}
+            </Text>
             {scores.babyEverUsed ? (
               <Text className="apple-game-page__best-line apple-game-page__best-line--baby">
                 BEST (응애모드) : {scores.babyBest}
@@ -208,7 +239,12 @@ export function AppleGamePage() {
             ) : null}
           </div>
           <div className="apple-game-page__play-row">
-            <Button type="primary" size="large" className="apple-game-page__play-btn" onClick={onPlay}>
+            <Button
+              type="primary"
+              size="large"
+              className="apple-game-page__play-btn"
+              onClick={onPlay}
+            >
               Play
             </Button>
             <Checkbox
@@ -218,17 +254,27 @@ export function AppleGamePage() {
             >
               응애모드
             </Checkbox>
-            <Tooltip title={BABY_MODE_HELP} placement="bottom" overlayClassName="apple-game-page__baby-help-overlay">
+            <Tooltip
+              title={BABY_MODE_HELP}
+              placement="bottom"
+              overlayClassName="apple-game-page__baby-help-overlay"
+            >
               <QuestionCircleOutlined className="apple-game-page__baby-help-icon" />
             </Tooltip>
           </div>
-          <Button size="large" danger ghost className="apple-game-page__reset-best" onClick={confirmResetBest}>
+          <Button
+            size="large"
+            danger
+            ghost
+            className="apple-game-page__reset-best"
+            onClick={confirmResetBest}
+          >
             Reset Best Score
           </Button>
         </div>
       ) : null}
 
-      {view === 'play' && grid ? (
+      {view === "play" && grid ? (
         <div ref={sessionRef} className="apple-game-page__session">
           <div className="apple-game-page__play-head">
             <div className="apple-game-page__best-head">
@@ -236,7 +282,10 @@ export function AppleGamePage() {
                 BEST (일반) : {scores.normalBest}
               </Text>
               {scores.babyEverUsed ? (
-                <Text strong className="apple-game-page__best-outside apple-game-page__best-outside--baby">
+                <Text
+                  strong
+                  className="apple-game-page__best-outside apple-game-page__best-outside--baby"
+                >
                   BEST (응애) : {scores.babyBest}
                 </Text>
               ) : null}
@@ -252,7 +301,11 @@ export function AppleGamePage() {
             onSelectionComplete={tryClearSelection}
           />
           <div className="apple-game-page__hud-row">
-            <Button size="small" className="apple-game-page__reset-game" onClick={onExitToMenu}>
+            <Button
+              size="small"
+              className="apple-game-page__reset-game"
+              onClick={onExitToMenu}
+            >
               RESET
             </Button>
             <div className="apple-game-page__hud-stats">
@@ -279,10 +332,12 @@ export function AppleGamePage() {
           </div>
           <div className="apple-game-page__hint">
             <Text type="secondary">
-              <AppstoreOutlined /> 사각형으로 드래그 · 포함된 숫자 합이 10이면 사과가 사라지고 점수가 오릅니다.
+              <AppstoreOutlined /> 사각형으로 드래그 · 포함된 숫자 합이 10이면
+              사과가 사라지고 점수가 오릅니다.
               {babyModeSession ? (
                 <>
-                  응애모드: 1~3이 더 자주·8~9는 덜 나오며, {APPLE_GAME_DURATION_BABY}초 플레이입니다.
+                  응애모드: 1~3이 더 자주·8~9는 덜 나오며,{" "}
+                  {APPLE_GAME_DURATION_BABY}초 플레이입니다.
                 </>
               ) : null}
             </Text>
@@ -294,6 +349,11 @@ export function AppleGamePage() {
         open={gameOver}
         score={score}
         onRestart={handleRestartFromModal}
+        showPerfectTrophy={score >= APPLE_MAX_SCORE}
+        trophyVariant={babyModeSession ? "baby" : "normal"}
+        trophyAchieveCount={
+          babyModeSession ? scores.baby170Count : scores.normal170Count
+        }
         onCaptureUi={handleCaptureGameUi}
         captureLoading={captureLoading}
         getContainer={() => sessionRef.current ?? document.body}

@@ -5,12 +5,18 @@ export interface AppleScoresState {
   normalBest: number;
   babyBest: number;
   babyEverUsed: boolean;
+  /** 일반 모드에서 최대점(170) 달성 횟수 */
+  normal170Count: number;
+  /** 응애 모드에서 최대점(170) 달성 횟수 */
+  baby170Count: number;
 }
 
 const defaultScores = (): AppleScoresState => ({
   normalBest: 0,
   babyBest: 0,
   babyEverUsed: false,
+  normal170Count: 0,
+  baby170Count: 0,
 });
 
 function parseScores(raw: string): AppleScoresState | null {
@@ -21,6 +27,14 @@ function parseScores(raw: string): AppleScoresState | null {
         typeof p.normalBest === 'number' && Number.isFinite(p.normalBest) ? Math.max(0, p.normalBest) : 0,
       babyBest: typeof p.babyBest === 'number' && Number.isFinite(p.babyBest) ? Math.max(0, p.babyBest) : 0,
       babyEverUsed: p.babyEverUsed === true,
+      normal170Count:
+        typeof p.normal170Count === 'number' && Number.isFinite(p.normal170Count)
+          ? Math.max(0, Math.floor(p.normal170Count))
+          : 0,
+      baby170Count:
+        typeof p.baby170Count === 'number' && Number.isFinite(p.baby170Count)
+          ? Math.max(0, Math.floor(p.baby170Count))
+          : 0,
     };
   } catch {
     return null;
@@ -39,7 +53,13 @@ export function loadAppleScores(): AppleScoresState {
     if (legacy) {
       const p = JSON.parse(legacy) as AppleBestScoreData & Partial<{ bestScore: number }>;
       const n = typeof p.bestScore === 'number' && Number.isFinite(p.bestScore) ? p.bestScore : 0;
-      const migrated = { normalBest: n, babyBest: 0, babyEverUsed: false };
+      const migrated: AppleScoresState = {
+        normalBest: n,
+        babyBest: 0,
+        babyEverUsed: false,
+        normal170Count: 0,
+        baby170Count: 0,
+      };
       saveAppleScores(migrated);
       localStorage.removeItem(APPLE_STORAGE_KEY);
       return migrated;
@@ -76,7 +96,7 @@ export function saveAppleBestScore(data: AppleBestScoreData): void {
   saveAppleScores({ ...cur, normalBest: data.bestScore });
 }
 
-/** 일반/응애 BEST 점수만 0으로 (응애모드 사용 이력 표시 여부는 유지) */
+/** 일반/응애 BEST 점수만 0으로 (응애모드 사용 이력·트로피 횟수는 유지) */
 export function clearAppleBestScore(): void {
   const cur = loadAppleScores();
   saveAppleScores({ ...cur, normalBest: 0, babyBest: 0 });

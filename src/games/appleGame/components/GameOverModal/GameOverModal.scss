@@ -24,6 +24,14 @@
     color: rgba(255, 255, 255, 0.95) !important;
   }
 
+  &__score-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   &__score {
     display: block;
     margin: 12px 0 22px !important;
@@ -34,7 +42,6 @@
 
     strong {
       display: inline-block;
-      margin-left: 6px;
       font-size: clamp(32px, 9vw, 40px);
       font-weight: 800;
       font-variant-numeric: tabular-nums;
@@ -43,6 +50,13 @@
       text-shadow:
         0 0 12px rgba(255, 224, 102, 0.45),
         0 2px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    &--max strong {
+      color: #69f0ae !important;
+      text-shadow:
+        0 0 16px rgba(105, 240, 174, 0.65),
+        0 2px 6px rgba(0, 0, 0, 0.4);
     }
   }
 
