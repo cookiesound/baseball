@@ -1,15 +1,22 @@
+/* 보드·프레임 고정 크기 (뷰포트에 따라 늘어나지 않음) */
+$apple-frame-width: 740px;
+$apple-board-inner-height: 420px;
+
 .apple-game-frame {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  width: 100%;
-  max-width: min(92vw, 900px);
+  box-sizing: border-box;
+  width: $apple-frame-width;
+  max-width: $apple-frame-width;
+  min-width: $apple-frame-width;
   margin: 0 auto;
   border: 4px solid #2e7d32;
   border-radius: 14px;
   background: rgba(200, 230, 201, 0.35);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .apple-game-board {
@@ -19,8 +26,11 @@
   display: grid;
   grid-template-columns: repeat(17, 1fr);
   grid-template-rows: repeat(10, 1fr);
+  box-sizing: border-box;
   padding: 12px;
-  min-height: min(52vh, 420px);
+  height: calc(#{$apple-board-inner-height} + 24px);
+  min-height: calc(#{$apple-board-inner-height} + 24px);
+  max-height: calc(#{$apple-board-inner-height} + 24px);
   background-color: #e8f5e9;
   background-image:
     linear-gradient(45deg, rgba(165, 214, 167, 0.55) 25%, transparent 25%),
@@ -68,9 +78,13 @@
 
 .apple-game-frame--stack {
   flex-direction: column;
-  max-width: 100%;
+  width: $apple-frame-width;
+  max-width: $apple-frame-width;
+  min-width: $apple-frame-width;
 }
 
 .apple-game-frame--stack .apple-game-board {
-  min-height: 280px;
+  height: calc(#{$apple-board-inner-height} + 24px);
+  min-height: calc(#{$apple-board-inner-height} + 24px);
+  max-height: calc(#{$apple-board-inner-height} + 24px);
 }

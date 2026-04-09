@@ -120,14 +120,19 @@
     align-items: center;
     gap: 0;
     width: 100%;
+    max-width: 100%;
     isolation: isolate;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 
   &__play-head {
-    max-width: min(92vw, 900px);
+    width: 900px;
+    max-width: 900px;
+    min-width: 900px;
+    box-sizing: border-box;
     margin: 0 auto 12px;
     padding-right: 4px;
-    width: 100%;
   }
 
   &__best-head {
@@ -141,11 +146,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
-    max-width: min(92vw, 900px);
+    width: 900px;
+    max-width: 900px;
+    min-width: 900px;
+    box-sizing: border-box;
     margin: 14px auto 0;
     padding: 0 4px;
-    box-sizing: border-box;
   }
 
   &__reset-game {
@@ -167,7 +173,7 @@
     align-items: center;
     gap: 8px;
     margin-left: auto;
-    max-width: min(42vw, 200px);
+    max-width: 200px;
   }
 
   &__sound-check {
@@ -197,7 +203,10 @@
   }
 
   &__hint {
-    max-width: min(92vw, 720px);
+    width: 900px;
+    max-width: 900px;
+    min-width: 900px;
+    box-sizing: border-box;
     margin: 16px auto 0;
     text-align: center;
     padding: 0 8px;

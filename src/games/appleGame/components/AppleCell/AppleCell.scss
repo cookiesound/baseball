@@ -32,9 +32,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: min(94%, 58px);
+    /* 가로 간격 줄이기: 셀 대비 과일 박스를 조금 더 크게 + 가로로 살짝 겹쳐 보이게 */
+    width: min(99%, 64px);
+    margin-inline: -3px;
     aspect-ratio: 1;
-    max-height: 94%;
+    max-height: 96%;
     padding: 0;
     background: none;
     border: none;
