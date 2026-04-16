@@ -1,3 +1,5 @@
+import type { AppleDifficultyInfo } from '../utils/getAppleDifficulty';
+
 export interface AppleCell {
   id: string;
   value: number;
@@ -11,6 +13,8 @@ export interface AppleGameState {
   score: number;
   time: number;
   gameOver: boolean;
+  /** 일반 모드: 시작 시점 보드 합 기준. 응애 모드: null */
+  difficulty: AppleDifficultyInfo | null;
 }
 
 /** @deprecated 마이그레이션용 — loadAppleScores 사용 */

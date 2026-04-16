@@ -7,8 +7,18 @@ import {
   APPLE_GRID_ROWS,
 } from '../types/appleGameTypes';
 import { calculateAppleSum } from '../utils/calculateAppleSum';
+import { calculateBoardSum } from '../utils/calculateBoardSum';
 import { generateAppleGrid } from '../utils/generateAppleGrid';
+import type { AppleDifficultyInfo } from '../utils/getAppleDifficulty';
+import { getAppleDifficulty } from '../utils/getAppleDifficulty';
 import { useTimer } from './useTimer';
+
+export type AppleSessionEndMeta = {
+  isBabyMode: boolean;
+  difficulty: AppleDifficultyInfo | null;
+  /** 판 시작 시점 격자 숫자 총합(고정 기준값) */
+  boardSumAtStart: number;
+};
 
 function markCellsRemoved(grid: AppleCell[][], idSet: Set<string>): AppleCell[][] {
   return grid.map((row) => row.map((c) => (idSet.has(c.id) ? { ...c, removed: true } : c)));
@@ -20,7 +30,7 @@ export interface UseAppleGameOptions {
 }
 
 export function useAppleGame(
-  onSessionEnd: (finalScore: number, meta: { isBabyMode: boolean }) => void,
+  onSessionEnd: (finalScore: number, meta: AppleSessionEndMeta) => void,
   { onSuccessfulPop, onFailedSelection }: UseAppleGameOptions = {},
 ) {
   const [playing, setPlaying] = useState(false);
@@ -30,10 +40,13 @@ export function useAppleGame(
   const [poppingIds, setPoppingIds] = useState<Set<string>>(new Set());
   const [sessionDuration, setSessionDuration] = useState(APPLE_GAME_DURATION_NORMAL);
   const [babyModeSession, setBabyModeSession] = useState(false);
+  const [difficulty, setDifficulty] = useState<AppleDifficultyInfo | null>(null);
 
   const gridRef = useRef<AppleCell[][] | null>(null);
   const poppingBusyRef = useRef(false);
   const sessionBabyRef = useRef(false);
+  const boardSumAtStartRef = useRef(0);
+  const sessionDifficultyRef = useRef<AppleDifficultyInfo | null>(null);
 
   useEffect(() => {
     gridRef.current = grid;
@@ -50,7 +63,11 @@ export function useAppleGame(
   const handleTimeUp = useCallback(() => {
     setPlaying(false);
     setGameOver(true);
-    onTimeUpRef.current(scoreRef.current, { isBabyMode: sessionBabyRef.current });
+    onTimeUpRef.current(scoreRef.current, {
+      isBabyMode: sessionBabyRef.current,
+      difficulty: sessionBabyRef.current ? null : sessionDifficultyRef.current,
+      boardSumAtStart: boardSumAtStartRef.current,
+    });
   }, []);
 
   const { time, reset: resetTime } = useTimer(playing, handleTimeUp);
@@ -65,11 +82,15 @@ export function useAppleGame(
       setSessionDuration(duration);
 
       poppingBusyRef.current = false;
-      setGrid(
-        generateAppleGrid(APPLE_GRID_COLS, APPLE_GRID_ROWS, {
-          babyFriendlyDistribution: sessionBabyRef.current,
-        }),
-      );
+      const nextGrid = generateAppleGrid(APPLE_GRID_COLS, APPLE_GRID_ROWS, {
+        babyFriendlyDistribution: sessionBabyRef.current,
+      });
+      const boardSum = calculateBoardSum(nextGrid);
+      boardSumAtStartRef.current = boardSum;
+      const nextDifficulty = sessionBabyRef.current ? null : getAppleDifficulty(boardSum);
+      sessionDifficultyRef.current = nextDifficulty;
+      setGrid(nextGrid);
+      setDifficulty(nextDifficulty);
       setScore(0);
       setPoppingIds(new Set());
       setGameOver(false);
@@ -92,6 +113,9 @@ export function useAppleGame(
     setScore(0);
     setPoppingIds(new Set());
     setBabyModeSession(false);
+    setDifficulty(null);
+    sessionDifficultyRef.current = null;
+    boardSumAtStartRef.current = 0;
     resetTime(APPLE_GAME_DURATION_NORMAL);
   }, [resetTime]);
 
@@ -128,6 +152,7 @@ export function useAppleGame(
     poppingIds,
     sessionDuration,
     babyModeSession,
+    difficulty,
     startPlay,
     restartAfterModal,
     exitToMenu,

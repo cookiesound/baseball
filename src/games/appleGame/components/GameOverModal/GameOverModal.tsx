@@ -1,6 +1,7 @@
 import { CopyOutlined } from "@ant-design/icons";
 import { Button, Modal, Tooltip, Typography } from "antd";
 import { cn } from "../../../../utils/cn";
+import type { AppleDifficultyInfo } from "../../utils/getAppleDifficulty";
 import {
   AppleTrophyBadge,
   type AppleTrophyVariant,
@@ -13,6 +14,10 @@ interface GameOverModalProps {
   open: boolean;
   score: number;
   onRestart: () => void;
+  onMainMenu?: () => void;
+  /** 일반 모드: 이번 판 난이도. 응애 모드: null */
+  sessionDifficulty?: AppleDifficultyInfo | null;
+  isBabyMode?: boolean;
   /** 최대점(170) 달성 시 초록 점수 + 트로피 */
   showPerfectTrophy?: boolean;
   trophyVariant?: AppleTrophyVariant;
@@ -27,6 +32,9 @@ export function GameOverModal({
   open,
   score,
   onRestart,
+  onMainMenu,
+  sessionDifficulty = null,
+  isBabyMode = false,
   showPerfectTrophy = false,
   trophyVariant = "normal",
   trophyAchieveCount = 0,
@@ -35,6 +43,8 @@ export function GameOverModal({
   getContainer,
 }: GameOverModalProps) {
   const showTrophy = showPerfectTrophy && trophyAchieveCount >= 1;
+  const diffLevel =
+    isBabyMode || !sessionDifficulty ? -1 : sessionDifficulty.level;
 
   return (
     <Modal
@@ -42,7 +52,7 @@ export function GameOverModal({
       footer={null}
       closable={false}
       centered
-      width={400}
+      width={520}
       className="game-over-modal"
       rootClassName="game-over-modal-root"
       maskClosable={false}
@@ -69,6 +79,24 @@ export function GameOverModal({
             ) : null}
           </span>
         </Text>
+        <div
+          className={cn(
+            "game-over-modal__difficulty",
+            diffLevel >= 0 && `game-over-modal__difficulty--lv-${diffLevel}`,
+            isBabyMode && "game-over-modal__difficulty--baby",
+          )}
+        >
+          {isBabyMode ? (
+            <span className="game-over-modal__difficulty-text">응애모드</span>
+          ) : sessionDifficulty ? (
+            <span className="game-over-modal__difficulty-text">
+              {sessionDifficulty.label}{" "}
+              <span className="game-over-modal__difficulty-stars">
+                ({sessionDifficulty.stars})
+              </span>
+            </span>
+          ) : null}
+        </div>
         <div className="game-over-modal__actions">
           <Button
             type="primary"
@@ -76,8 +104,17 @@ export function GameOverModal({
             onClick={onRestart}
             className="game-over-modal__btn"
           >
-            Restart
+            다시 시작
           </Button>
+          {onMainMenu ? (
+            <Button
+              size="large"
+              onClick={onMainMenu}
+              className="game-over-modal__btn game-over-modal__btn--secondary"
+            >
+              메인으로
+            </Button>
+          ) : null}
           {onCaptureUi ? (
             <Tooltip title="게임 화면 전체를 캡처합니다.">
               <Button
@@ -87,7 +124,9 @@ export function GameOverModal({
                 loading={captureLoading}
                 className="game-over-modal__capture"
                 aria-label="화면 캡처 복사"
-              />
+              >
+                복사하기
+              </Button>
             </Tooltip>
           ) : null}
         </div>

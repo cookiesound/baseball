@@ -2,10 +2,14 @@ import { AppstoreOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { App, Button, Checkbox, Slider, Tooltip, Typography } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppleBoard } from "../../games/appleGame/components/AppleBoard/AppleBoard";
+import { AppleDifficultyHud } from "../../games/appleGame/components/AppleDifficultyHud/AppleDifficultyHud";
 import { AppleTrophyBadge } from "../../games/appleGame/components/AppleTrophyBadge/AppleTrophyBadge";
 import { GameOverModal } from "../../games/appleGame/components/GameOverModal/GameOverModal";
 import { ScoreDisplay } from "../../games/appleGame/components/ScoreDisplay/ScoreDisplay";
-import { useAppleGame } from "../../games/appleGame/hooks/useAppleGame";
+import {
+  useAppleGame,
+  type AppleSessionEndMeta,
+} from "../../games/appleGame/hooks/useAppleGame";
 import { useAppleGameAudio } from "../../games/appleGame/hooks/useAppleGameAudio";
 import {
   APPLE_GAME_DURATION_BABY,
@@ -71,15 +75,40 @@ export function AppleGamePage() {
   }, []);
 
   const handleSessionEnd = useCallback(
-    (finalScore: number, meta: { isBabyMode: boolean }) => {
+    (finalScore: number, meta: AppleSessionEndMeta) => {
       setScores((prev) => {
         const next = { ...prev };
+        if (meta.isBabyMode) next.babyEverUsed = true;
+        next.lastScore = finalScore;
         if (meta.isBabyMode) {
-          if (finalScore > next.babyBest) next.babyBest = finalScore;
+          next.lastDifficultyLevel = -1;
+          next.lastDifficultyStars = "—";
+          next.lastDifficultyLabel = "응애모드";
+          next.lastBoardSum = 0;
+        } else if (meta.difficulty) {
+          next.lastDifficultyLevel = meta.difficulty.level;
+          next.lastDifficultyStars = meta.difficulty.stars;
+          next.lastDifficultyLabel = meta.difficulty.label;
+          next.lastBoardSum = meta.boardSumAtStart;
+        }
+        if (meta.isBabyMode) {
+          if (finalScore > next.babyBest) {
+            next.babyBest = finalScore;
+            next.babyBestDifficultyStars = "BABY";
+            next.babyBestDifficultyLabel = "응애모드";
+          }
           if (finalScore >= APPLE_MAX_SCORE)
             next.baby170Count = (next.baby170Count ?? 0) + 1;
         } else {
-          if (finalScore > next.normalBest) next.normalBest = finalScore;
+          if (finalScore > next.normalBest) {
+            next.normalBest = finalScore;
+            if (meta.difficulty) {
+              next.bestDifficultyLevel = meta.difficulty.level;
+              next.bestDifficultyStars = meta.difficulty.stars;
+              next.bestDifficultyLabel = meta.difficulty.label;
+              next.bestBoardSum = meta.boardSumAtStart;
+            }
+          }
           if (finalScore >= APPLE_MAX_SCORE)
             next.normal170Count = (next.normal170Count ?? 0) + 1;
         }
@@ -99,6 +128,7 @@ export function AppleGamePage() {
     poppingIds,
     sessionDuration,
     babyModeSession,
+    difficulty,
     startPlay,
     restartAfterModal,
     exitToMenu,
@@ -152,6 +182,12 @@ export function AppleGamePage() {
     startBgm();
   };
 
+  const handleMainMenuFromModal = () => {
+    exitToMenu();
+    setView("menu");
+    setScores(loadAppleScores());
+  };
+
   const handleCaptureGameUi = useCallback(async () => {
     const el = sessionRef.current;
     if (!el) {
@@ -190,8 +226,9 @@ export function AppleGamePage() {
 
   const confirmResetBest = () => {
     modal.confirm({
-      title: "정말 최고 점수를 삭제하시겠습니까?",
-      content: "일반 모드와 응애모드 BEST 점수가 모두 0으로 초기화됩니다.",
+      title: "정말 기록을 초기화하시겠습니까?",
+      content:
+        "일반/응애 BEST 점수, 난이도·직전 판 기록이 모두 삭제됩니다. (트로피 횟수는 유지됩니다)",
       okText: "YES",
       cancelText: "취소",
       okButtonProps: { danger: true },
@@ -228,14 +265,35 @@ export function AppleGamePage() {
           <Paragraph className="apple-game-page__menu-sub">
             Apple Sum Game · 드래그로 합 10 만들기
           </Paragraph>
-          <div className="apple-game-page__best-block">
-            <Text className="apple-game-page__best-line">
-              BEST (일반) : {scores.normalBest}
-            </Text>
-            {scores.babyEverUsed ? (
-              <Text className="apple-game-page__best-line apple-game-page__best-line--baby">
-                BEST (응애모드) : {scores.babyBest}
-              </Text>
+          <div className="apple-game-page__best-cards">
+            <div className="apple-game-page__best-card apple-game-page__best-card--normal">
+              <Text className="apple-game-page__best-card-title">일반 모드 BEST</Text>
+              <Text className="apple-game-page__best-card-score">{scores.normalBest}</Text>
+              {scores.normalBest > 0 ? (
+                <Text className="apple-game-page__best-card-difficulty">
+                  {scores.bestDifficultyStars} ({scores.bestDifficultyLabel})
+                </Text>
+              ) : (
+                <Text className="apple-game-page__best-card-difficulty apple-game-page__best-card-difficulty--empty">
+                  기록 없음
+                </Text>
+              )}
+            </div>
+            {scores.babyBest > 0 ? (
+              <div className="apple-game-page__best-card apple-game-page__best-card--baby">
+                <Text className="apple-game-page__best-card-title">응애 모드 BEST</Text>
+                <Text className="apple-game-page__best-card-score">{scores.babyBest}</Text>
+                <Text className="apple-game-page__best-card-difficulty">
+                  {scores.babyBestDifficultyStars && scores.babyBestDifficultyStars !== "—"
+                    ? scores.babyBestDifficultyStars
+                    : "BABY"}{" "}
+                  (
+                  {scores.babyBestDifficultyLabel && scores.babyBestDifficultyLabel !== "—"
+                    ? scores.babyBestDifficultyLabel
+                    : "응애모드"}
+                  )
+                </Text>
+              </div>
             ) : null}
           </div>
           <div className="apple-game-page__play-row">
@@ -277,19 +335,43 @@ export function AppleGamePage() {
       {view === "play" && grid ? (
         <div ref={sessionRef} className="apple-game-page__session">
           <div className="apple-game-page__play-head">
-            <div className="apple-game-page__best-head">
-              <Text strong className="apple-game-page__best-outside">
-                BEST (일반) : {scores.normalBest}
-              </Text>
-              {scores.babyEverUsed ? (
-                <Text
-                  strong
-                  className="apple-game-page__best-outside apple-game-page__best-outside--baby"
-                >
-                  BEST (응애) : {scores.babyBest}
+            <div className="apple-game-page__best-head-inline">
+              <div className="apple-game-page__best-pill apple-game-page__best-pill--normal">
+                <Text className="apple-game-page__best-pill-mode">일반</Text>
+                <Text strong className="apple-game-page__best-pill-score">
+                  BEST {scores.normalBest}
                 </Text>
+                {scores.normalBest > 0 ? (
+                  <Text className="apple-game-page__best-pill-difficulty">
+                    {scores.bestDifficultyStars} ({scores.bestDifficultyLabel})
+                  </Text>
+                ) : null}
+              </div>
+              {scores.babyBest > 0 ? (
+                <div className="apple-game-page__best-pill apple-game-page__best-pill--baby">
+                  <Text className="apple-game-page__best-pill-mode">응애</Text>
+                  <Text strong className="apple-game-page__best-pill-score">
+                    BEST {scores.babyBest}
+                  </Text>
+                  <Text className="apple-game-page__best-pill-difficulty">
+                    {scores.babyBestDifficultyStars && scores.babyBestDifficultyStars !== "—"
+                      ? scores.babyBestDifficultyStars
+                      : "BABY"}{" "}
+                    (
+                    {scores.babyBestDifficultyLabel && scores.babyBestDifficultyLabel !== "—"
+                      ? scores.babyBestDifficultyLabel
+                      : "응애모드"}
+                    )
+                  </Text>
+                </div>
               ) : null}
             </div>
+          </div>
+          <div className="apple-game-page__difficulty-top-left">
+            <AppleDifficultyHud
+              difficulty={difficulty}
+              babyMode={babyModeSession}
+            />
           </div>
           <AppleBoard
             grid={grid}
@@ -349,6 +431,9 @@ export function AppleGamePage() {
         open={gameOver}
         score={score}
         onRestart={handleRestartFromModal}
+        onMainMenu={handleMainMenuFromModal}
+        sessionDifficulty={difficulty}
+        isBabyMode={babyModeSession}
         showPerfectTrophy={score >= APPLE_MAX_SCORE}
         trophyVariant={babyModeSession ? "baby" : "normal"}
         trophyAchieveCount={

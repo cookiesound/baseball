@@ -1,0 +1,54 @@
+.apple-difficulty-hud {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  &__label {
+    margin-right: 6px;
+    opacity: 0.85;
+    font-weight: 500;
+  }
+
+  &__value {
+    font-weight: 700;
+  }
+
+  &__stars {
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  &--lv-0 {
+    color: #69f0ae;
+  }
+
+  &--lv-1 {
+    color: #80deea;
+  }
+
+  &--lv-2 {
+    color: #fff176;
+  }
+
+  &--lv-3 {
+    color: #ffb74d;
+  }
+
+  &--lv-4 {
+    color: #ff8a80;
+  }
+
+  &--lv-5 {
+    color: #e1bee7;
+    text-shadow:
+      0 0 10px rgba(225, 190, 231, 0.55),
+      0 1px 2px rgba(0, 0, 0, 0.45);
+  }
+
+  &--baby {
+    color: rgba(255, 224, 178, 0.95);
+  }
+}
