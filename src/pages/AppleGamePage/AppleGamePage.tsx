@@ -1,11 +1,24 @@
-import { AppstoreOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { App, Button, Checkbox, Slider, Tooltip, Typography } from "antd";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  AppstoreOutlined,
+  QuestionCircleOutlined,
+  TrophyOutlined,
+} from "@ant-design/icons";
+import { App, Button, Checkbox, Modal, Slider, Tooltip, Typography } from "antd";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppleBoard } from "../../games/appleGame/components/AppleBoard/AppleBoard";
 import { AppleDifficultyHud } from "../../games/appleGame/components/AppleDifficultyHud/AppleDifficultyHud";
 import { AppleTrophyBadge } from "../../games/appleGame/components/AppleTrophyBadge/AppleTrophyBadge";
 import { GameOverModal } from "../../games/appleGame/components/GameOverModal/GameOverModal";
 import { ScoreDisplay } from "../../games/appleGame/components/ScoreDisplay/ScoreDisplay";
+
+const APPLE_LEVEL_ROWS: Array<{ level: number; stars: string; label: string }> = [
+  { level: 0, stars: "☆☆☆☆☆", label: "매우 쉬움" },
+  { level: 1, stars: "★☆☆☆☆", label: "쉬움" },
+  { level: 2, stars: "★★☆☆☆", label: "보통" },
+  { level: 3, stars: "★★★☆☆", label: "어려움" },
+  { level: 4, stars: "★★★★☆", label: "매우 어려움" },
+  { level: 5, stars: "★★★★★", label: "극악" },
+];
 import {
   useAppleGame,
   type AppleSessionEndMeta,
@@ -52,6 +65,7 @@ export function AppleGamePage() {
   );
   const [babyModeQueued, setBabyModeQueued] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
+  const [bestByLevelOpen, setBestByLevelOpen] = useState(false);
 
   const {
     muted,
@@ -107,6 +121,15 @@ export function AppleGamePage() {
               next.bestDifficultyStars = meta.difficulty.stars;
               next.bestDifficultyLabel = meta.difficulty.label;
               next.bestBoardSum = meta.boardSumAtStart;
+            }
+          }
+          if (meta.difficulty) {
+            const lv = meta.difficulty.level;
+            const prevLv = next.bestByLevel?.[lv] ?? 0;
+            if (finalScore > prevLv) {
+              const updated = [...(next.bestByLevel ?? [0, 0, 0, 0, 0, 0])] as typeof next.bestByLevel;
+              updated[lv] = finalScore;
+              next.bestByLevel = updated;
             }
           }
           if (finalScore >= APPLE_MAX_SCORE)
@@ -224,6 +247,16 @@ export function AppleGamePage() {
     setScores(loadAppleScores());
   };
 
+  const bestByLevelRows = useMemo(
+    () =>
+      APPLE_LEVEL_ROWS.map((row) => ({
+        ...row,
+        key: `lv-${row.level}`,
+        score: scores.bestByLevel?.[row.level] ?? 0,
+      })),
+    [scores.bestByLevel],
+  );
+
   const confirmResetBest = () => {
     modal.confirm({
       title: "정말 기록을 초기화하시겠습니까?",
@@ -295,6 +328,17 @@ export function AppleGamePage() {
                 </Text>
               </div>
             ) : null}
+            <Tooltip title="난이도별 BEST 점수 전체보기">
+              <Button
+                type="default"
+                size="large"
+                shape="circle"
+                icon={<TrophyOutlined />}
+                className="apple-game-page__best-leaderboard-btn"
+                aria-label="난이도별 BEST 점수 전체보기"
+                onClick={() => setBestByLevelOpen(true)}
+              />
+            </Tooltip>
           </div>
           <div className="apple-game-page__play-row">
             <Button
@@ -426,6 +470,47 @@ export function AppleGamePage() {
           </div>
         </div>
       ) : null}
+
+      <Modal
+        open={bestByLevelOpen}
+        onCancel={() => setBestByLevelOpen(false)}
+        footer={null}
+        centered
+        width={460}
+        title="난이도별 BEST 점수 전체보기"
+        className="apple-best-by-level-modal"
+        rootClassName="apple-best-by-level-modal-root"
+      >
+        <div className="apple-best-by-level-list">
+          {bestByLevelRows.map((row) => (
+            <div
+              key={row.key}
+              className={`apple-best-by-level-row apple-best-by-level-row--lv-${row.level}`}
+            >
+              <span className="apple-best-by-level-row__stars">{row.stars}</span>
+              <span className="apple-best-by-level-row__label">{row.label}</span>
+              <span
+                className={`apple-best-by-level-row__score${
+                  row.score > 0 ? "" : " apple-best-by-level-row__score--empty"
+                }`}
+              >
+                {row.score > 0 ? row.score : "-"}
+              </span>
+            </div>
+          ))}
+          <div className="apple-best-by-level-row apple-best-by-level-row--baby">
+            <span className="apple-best-by-level-row__stars">BABY</span>
+            <span className="apple-best-by-level-row__label">응애모드</span>
+            <span
+              className={`apple-best-by-level-row__score${
+                scores.babyBest > 0 ? "" : " apple-best-by-level-row__score--empty"
+              }`}
+            >
+              {scores.babyBest > 0 ? scores.babyBest : "-"}
+            </span>
+          </div>
+        </div>
+      </Modal>
 
       <GameOverModal
         open={gameOver}

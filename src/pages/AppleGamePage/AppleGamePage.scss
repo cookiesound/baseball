@@ -53,6 +53,24 @@
     justify-content: center;
     align-items: stretch;
     gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__best-leaderboard-btn {
+    align-self: center;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 20px;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 224, 102, 0.55) !important;
+    color: #ffe066 !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 224, 102, 0.18);
+
+    &:hover {
+      background: rgba(255, 224, 102, 0.18) !important;
+      border-color: rgba(255, 224, 102, 0.85) !important;
+      color: #fff3a0 !important;
+    }
   }
 
   &__best-card {
@@ -262,8 +280,10 @@
     min-width: 900px;
     box-sizing: border-box;
     margin: 0 auto 8px;
-    padding-left: 4px;
-    text-align: left;
+    padding: 0 4px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
   }
 
   &__hud-row {
@@ -340,5 +360,89 @@
     margin: 16px auto 0;
     text-align: center;
     padding: 0 8px;
+  }
+}
+
+.apple-best-by-level-modal {
+  .ant-modal-content {
+    border-radius: 14px;
+  }
+
+  .ant-modal-title {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+}
+
+.apple-best-by-level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.apple-best-by-level-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+
+  &__stars {
+    font-weight: 800;
+    letter-spacing: 0.06em;
+  }
+
+  &__label {
+    font-weight: 600;
+    opacity: 0.88;
+  }
+
+  &__score {
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #ffe066;
+    min-width: 48px;
+    text-align: right;
+
+    &--empty {
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
+    }
+  }
+
+  &--lv-0 .apple-best-by-level-row__stars {
+    color: #69f0ae;
+  }
+  &--lv-1 .apple-best-by-level-row__stars {
+    color: #80deea;
+  }
+  &--lv-2 .apple-best-by-level-row__stars {
+    color: #fff176;
+  }
+  &--lv-3 .apple-best-by-level-row__stars {
+    color: #ffb74d;
+  }
+  &--lv-4 .apple-best-by-level-row__stars {
+    color: #ff8a80;
+  }
+  &--lv-5 .apple-best-by-level-row__stars {
+    color: #e1bee7;
+    text-shadow: 0 0 8px rgba(225, 190, 231, 0.45);
+  }
+
+  &--baby {
+    background: rgba(255, 183, 77, 0.08);
+    border-color: rgba(255, 183, 77, 0.28);
+
+    .apple-best-by-level-row__stars {
+      color: #ffcc80;
+      letter-spacing: 0.08em;
+    }
   }
 }

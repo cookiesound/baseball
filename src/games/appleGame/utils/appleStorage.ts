@@ -15,6 +15,9 @@ export interface AppleGameRecord {
   lastBoardSum: number;
 }
 
+/** 난이도 레벨별(0~5) 최고 점수 기록 */
+export type AppleBestByLevel = [number, number, number, number, number, number];
+
 export interface AppleScoresState {
   normalBest: number;
   babyBest: number;
@@ -29,12 +32,16 @@ export interface AppleScoresState {
   bestBoardSum: number;
   babyBestDifficultyStars: string;
   babyBestDifficultyLabel: string;
+  /** 난이도 레벨 0~5 각각의 최고 점수 (일반 모드 한정) */
+  bestByLevel: AppleBestByLevel;
   lastScore: number;
   lastDifficultyLevel: number;
   lastDifficultyStars: string;
   lastDifficultyLabel: string;
   lastBoardSum: number;
 }
+
+const createEmptyBestByLevel = (): AppleBestByLevel => [0, 0, 0, 0, 0, 0];
 
 const defaultRecordFields = (): Pick<
   AppleScoresState,
@@ -44,6 +51,7 @@ const defaultRecordFields = (): Pick<
   | 'bestBoardSum'
   | 'babyBestDifficultyStars'
   | 'babyBestDifficultyLabel'
+  | 'bestByLevel'
   | 'lastScore'
   | 'lastDifficultyLevel'
   | 'lastDifficultyStars'
@@ -56,6 +64,7 @@ const defaultRecordFields = (): Pick<
   bestBoardSum: 0,
   babyBestDifficultyStars: '—',
   babyBestDifficultyLabel: '—',
+  bestByLevel: createEmptyBestByLevel(),
   lastScore: 0,
   lastDifficultyLevel: 0,
   lastDifficultyStars: '—',
@@ -91,6 +100,18 @@ function parseLastDifficultyLevel(raw: unknown): number {
   return n;
 }
 
+function parseBestByLevel(raw: unknown): AppleBestByLevel {
+  const out = createEmptyBestByLevel();
+  if (!Array.isArray(raw)) return out;
+  for (let i = 0; i < 6; i += 1) {
+    const v = raw[i];
+    if (typeof v === 'number' && Number.isFinite(v) && v > 0) {
+      out[i] = Math.max(0, Math.floor(v));
+    }
+  }
+  return out;
+}
+
 function parseScores(raw: string): AppleScoresState | null {
   try {
     const p = JSON.parse(raw) as Partial<AppleScoresState>;
@@ -99,9 +120,22 @@ function parseScores(raw: string): AppleScoresState | null {
       typeof p.babyBest === 'number' && Number.isFinite(p.babyBest)
         ? Math.max(0, p.babyBest)
         : 0;
+    const normalBest =
+      typeof p.normalBest === 'number' && Number.isFinite(p.normalBest)
+        ? Math.max(0, p.normalBest)
+        : 0;
+    const bestDifficultyLevel = parseBestDifficultyLevel(p.bestDifficultyLevel);
+    const bestByLevel = parseBestByLevel(p.bestByLevel);
+    // 기존에 저장된 normalBest를 레벨별 랭킹에 backfill (해당 레벨 기록보다 크거나, 레벨별 최대값보다 큰 경우에 반영)
+    if (normalBest > 0) {
+      const currentAtLevel = bestByLevel[bestDifficultyLevel] ?? 0;
+      const maxInBestByLevel = Math.max(...bestByLevel);
+      if (normalBest > currentAtLevel || normalBest > maxInBestByLevel) {
+        bestByLevel[bestDifficultyLevel] = Math.max(currentAtLevel, normalBest);
+      }
+    }
     return {
-      normalBest:
-        typeof p.normalBest === 'number' && Number.isFinite(p.normalBest) ? Math.max(0, p.normalBest) : 0,
+      normalBest,
       babyBest,
       babyEverUsed: p.babyEverUsed === true || babyBest > 0,
       normal170Count:
@@ -112,7 +146,7 @@ function parseScores(raw: string): AppleScoresState | null {
         typeof p.baby170Count === 'number' && Number.isFinite(p.baby170Count)
           ? Math.max(0, Math.floor(p.baby170Count))
           : 0,
-      bestDifficultyLevel: parseBestDifficultyLevel(p.bestDifficultyLevel),
+      bestDifficultyLevel,
       bestDifficultyStars: typeof p.bestDifficultyStars === 'string' ? p.bestDifficultyStars : base.bestDifficultyStars,
       bestDifficultyLabel: typeof p.bestDifficultyLabel === 'string' ? p.bestDifficultyLabel : base.bestDifficultyLabel,
       bestBoardSum: typeof p.bestBoardSum === 'number' && Number.isFinite(p.bestBoardSum) ? Math.max(0, p.bestBoardSum) : 0,
@@ -120,6 +154,7 @@ function parseScores(raw: string): AppleScoresState | null {
         typeof p.babyBestDifficultyStars === 'string' ? p.babyBestDifficultyStars : base.babyBestDifficultyStars,
       babyBestDifficultyLabel:
         typeof p.babyBestDifficultyLabel === 'string' ? p.babyBestDifficultyLabel : base.babyBestDifficultyLabel,
+      bestByLevel,
       lastScore: typeof p.lastScore === 'number' && Number.isFinite(p.lastScore) ? Math.max(0, p.lastScore) : 0,
       lastDifficultyLevel: parseLastDifficultyLevel(p.lastDifficultyLevel),
       lastDifficultyStars: typeof p.lastDifficultyStars === 'string' ? p.lastDifficultyStars : base.lastDifficultyStars,
@@ -137,7 +172,20 @@ export function loadAppleScores(): AppleScoresState {
     const v2 = localStorage.getItem(APPLE_SCORES_KEY);
     if (v2) {
       const s = parseScores(v2);
-      if (s) return s;
+      if (s) {
+        // parseScores가 backfill한 결과를 즉시 영속화 (다음 로드부터는 그대로 사용)
+        try {
+          const reparsed = JSON.parse(v2) as Partial<AppleScoresState>;
+          const storedBestByLevel = Array.isArray(reparsed.bestByLevel) ? reparsed.bestByLevel : [];
+          const changed =
+            storedBestByLevel.length !== 6 ||
+            s.bestByLevel.some((v, i) => v !== storedBestByLevel[i]);
+          if (changed) saveAppleScores(s);
+        } catch {
+          /* ignore */
+        }
+        return s;
+      }
     }
     const legacy = localStorage.getItem(APPLE_STORAGE_KEY);
     if (legacy) {
