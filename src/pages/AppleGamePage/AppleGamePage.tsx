@@ -66,6 +66,7 @@ export function AppleGamePage() {
   const [babyModeQueued, setBabyModeQueued] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
   const [bestByLevelOpen, setBestByLevelOpen] = useState(false);
+  const [sessionIsNewBest, setSessionIsNewBest] = useState(false);
 
   const {
     muted,
@@ -91,6 +92,15 @@ export function AppleGamePage() {
   const handleSessionEnd = useCallback(
     (finalScore: number, meta: AppleSessionEndMeta) => {
       setScores((prev) => {
+        let newBest = false;
+        if (meta.isBabyMode) {
+          newBest = finalScore > (prev.babyBest ?? 0);
+        } else if (meta.difficulty) {
+          const lv = meta.difficulty.level;
+          const prevAtLv = prev.bestByLevel?.[lv] ?? 0;
+          newBest = finalScore > prevAtLv;
+        }
+        setSessionIsNewBest(newBest);
         const next = { ...prev };
         if (meta.isBabyMode) next.babyEverUsed = true;
         next.lastScore = finalScore;
@@ -195,17 +205,20 @@ export function AppleGamePage() {
       markAppleBabyModeEverUsed();
       setScores(loadAppleScores());
     }
+    setSessionIsNewBest(false);
     setView("play");
     startPlay({ babyMode: babyModeQueued });
     startBgm();
   };
 
   const handleRestartFromModal = () => {
+    setSessionIsNewBest(false);
     restartAfterModal();
     startBgm();
   };
 
   const handleMainMenuFromModal = () => {
+    setSessionIsNewBest(false);
     exitToMenu();
     setView("menu");
     setScores(loadAppleScores());
@@ -526,6 +539,7 @@ export function AppleGamePage() {
         }
         onCaptureUi={handleCaptureGameUi}
         captureLoading={captureLoading}
+        isNewBest={sessionIsNewBest}
         getContainer={() => sessionRef.current ?? document.body}
       />
     </div>

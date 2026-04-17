@@ -25,6 +25,8 @@ interface GameOverModalProps {
   trophyAchieveCount?: number;
   onCaptureUi?: () => void;
   captureLoading?: boolean;
+  /** 해당 난이도(또는 응애모드) 최고점수 갱신 여부 */
+  isNewBest?: boolean;
   getContainer?: HTMLElement | (() => HTMLElement) | false;
 }
 
@@ -40,6 +42,7 @@ export function GameOverModal({
   trophyAchieveCount = 0,
   onCaptureUi,
   captureLoading = false,
+  isNewBest = false,
   getContainer,
 }: GameOverModalProps) {
   const showTrophy = showPerfectTrophy && trophyAchieveCount >= 1;
@@ -62,10 +65,18 @@ export function GameOverModal({
         <Title level={3} className="game-over-modal__title">
           GAME OVER
         </Title>
+        {isNewBest ? (
+          <div className="game-over-modal__new-best" aria-live="polite">
+            <span className="game-over-modal__new-best-text">
+              최고점수 갱신!
+            </span>
+          </div>
+        ) : null}
         <Text
           className={cn(
             "game-over-modal__score",
             showPerfectTrophy && "game-over-modal__score--max",
+            isNewBest && "game-over-modal__score--new-best",
           )}
         >
           <span className="game-over-modal__score-row">
